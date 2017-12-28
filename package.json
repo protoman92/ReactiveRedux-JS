@@ -1,0 +1,30 @@
+{
+  "name": "reactiveredux-js",
+  "version": "1.0.0",
+  "description": "Rx-based Redux implementation.",
+  "main": "./dist/src/index.js",
+  "types": "./dist/src/index.d.ts",
+  "typings": "./dist/src/index.d.ts",
+  "scripts": {
+    "test": "jest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/protoman92/ReactiveRedux-JS.git"
+  },
+  "author": "Hai Pham",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/protoman92/ReactiveRedux-JS/issues"
+  },
+  "homepage": "https://github.com/protoman92/ReactiveRedux-JS#readme",
+  "dependencies": {
+    "rxjs": "^5.5.6",
+    "typesafereduxstate-js": "^1.0.0"
+  },
+  "devDependencies": {
+    "@types/jest": "^21.1.6",
+    "jest": "^21.2.1",
+    "ts-jest": "^21.2.3"
+  }
+}
