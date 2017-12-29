@@ -1,3 +1,4 @@
+[![Build Status](https://travis-ci.org/protoman92/ReactiveRedux-JS.svg?branch=master)](https://travis-ci.org/protoman92/ReactiveRedux-JS)
 # ReactiveRedux-JS
 Rx-based Redux implementation, inspired by https://github.com/Holmusk/HMReactiveRedux-iOS.git.
 
