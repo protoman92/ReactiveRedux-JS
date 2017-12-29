@@ -1,6 +1,7 @@
 import { Observable } from 'rxjs';
 import { State as S } from 'typesafereduxstate-js';
 import { Reducer } from './types';
+import * as Wrapper from './Wrapper';
 
 export type RxReducer<T> = (state: S.Self<T>) => S.Self<T>;
 
@@ -38,3 +39,27 @@ export let create = (...reducers: Observable<RxReducer<any>>[]): Observable<S.Se
     .scan((v1, v2) => v2(v1), S.empty<any>())
     .shareReplay(1);
 };
+
+/**
+ * This store is optional. It only provides some convenience when dealing with
+ * state streams.
+ */
+export class Self implements Wrapper.ConvertibleType, Wrapper.Type {
+  private store: Observable<S.Self<any>>;
+
+  public constructor(...reducers: Observable<RxReducer<any>>[]) {
+    this.store = create(...reducers);
+  }
+
+  /**
+   * Get a store wrapper.
+   * @returns {Wrapper.Self} A Wrapper.Self instance.
+   */
+  public toWrapper = (): Wrapper.Self => new Wrapper.Self(this);
+
+  /**
+   * Expose the inner store.
+   * @returns {Observable<S.Self<any>>} An Observable instance.
+   */
+  public stateStream = (): Observable<S.Self<any>> => this.store;
+}
