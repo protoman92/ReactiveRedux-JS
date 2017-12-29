@@ -50,9 +50,20 @@ describe('Rx store should be implemented correctly', () => {
     var values2: Nullable<string>[] = [];
     var values3: Nullable<boolean>[] = [];
 
-    wrapper.numberAtNode(path1).doOnNext(v => values1.push(v.value)).subscribe();
-    wrapper.stringAtNode(path2).doOnNext(v => values2.push(v.value)).subscribe();
-    wrapper.booleanAtNode(path3).doOnNext(v => values3.push(v.value)).subscribe();
+    wrapper.numberAtNode(path1)
+      .doOnNext(v => values1.push(v.value))
+      .logNext(v => v.value)
+      .subscribe();
+
+    wrapper.stringAtNode(path2)
+      .doOnNext(v => values2.push(v.value))
+      .logNext(v => v.value)
+      .subscribe();
+
+    wrapper.booleanAtNode(path3)
+      .doOnNext(v => values3.push(v.value))
+      .logNext(v => v.value)
+      .subscribe();
 
     /// When
     numbers.forEach(v => action1.next(v));
