@@ -37,6 +37,7 @@ export function createReducer<T>(obs: Observable<T>, reducer: Reducer<T>): Obser
 export let create = (...reducers: Observable<RxReducer<any>>[]): Observable<S.Self<any>> => {
   return Observable.merge(...reducers)
     .scan((v1, v2) => v2(v1), S.empty<any>())
+    .startWith(S.empty<any>())
     .shareReplay(1);
 };
 

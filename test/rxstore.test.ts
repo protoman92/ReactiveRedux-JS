@@ -1,5 +1,6 @@
 import { BehaviorSubject } from 'rxjs';
 import { Collections as Cols, Nullable, Numbers, Try } from 'javascriptutilities';
+import { State } from 'typesafereduxstate-js';
 import { ReduxStore } from './../src';
 
 describe('Rx store should be implemented correctly', () => {
@@ -49,7 +50,13 @@ describe('Rx store should be implemented correctly', () => {
     var values1: Nullable<number>[] = [];
     var values2: Nullable<string>[] = [];
     var values3: Nullable<boolean>[] = [];
-    
+    var states: Nullable<State.Self<any>>[] = [];
+   
+    wrapper.stateStream()
+      .doOnNext(v => states.push(v))
+      .logNext(v => v.flatten())
+      .subscribe();
+
     wrapper.numberAtNode(path1)
       .doOnNext(v => values1.push(v.value))
       .logNext(v => v.value)
@@ -77,5 +84,6 @@ describe('Rx store should be implemented correctly', () => {
     expect(Cols.last(values1).value).toEqual(Numbers.sum(numbers));
     expect(Cols.last(values2).value).toEqual(strings.reduce((v1, v2) => v1 + v2));
     expect(Cols.last(values3).value).toEqual(Cols.last(booleans).value);
+    expect(states.every(v => v !== undefined && v !== null)).toBeTruthy();
   });
 });
