@@ -49,7 +49,7 @@ describe('Rx store should be implemented correctly', () => {
     var values1: Nullable<number>[] = [];
     var values2: Nullable<string>[] = [];
     var values3: Nullable<boolean>[] = [];
-
+    
     wrapper.numberAtNode(path1)
       .doOnNext(v => values1.push(v.value))
       .logNext(v => v.value)

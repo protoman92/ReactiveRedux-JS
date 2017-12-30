@@ -1,6 +1,7 @@
 import { Observable } from 'rxjs';
 import { Try } from 'javascriptutilities';
 import { State } from 'typesafereduxstate-js';
+import * as Provider from './Provider';
 
 export interface ConvertibleType {
   /**
@@ -24,11 +25,15 @@ export interface Type {
  * a Type implementation, so it does not matter how the actual store is 
  * implemented, so long as it exposes its inner state stream.
  */
-export class Self implements ConvertibleType, Type {
-  private store: Type;
+export class Self implements Provider.Type, ConvertibleType, Type {
+  private _store: Type;
+
+  public get store(): Self {
+    return this;
+  }
 
   public constructor(store: Type) {
-    this.store = store;
+    this._store = store;
   }
 
   /**
@@ -42,7 +47,7 @@ export class Self implements ConvertibleType, Type {
    * @returns {Observable<State.Self<any>>} An Observable instance.
    */
   public stateStream = (): Observable<State.Self<any>> => {
-    return this.store.stateStream();
+    return this._store.stateStream();
   }
 
   /**
