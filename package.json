@@ -1,6 +1,6 @@
 {
   "name": "reactiveredux-js",
-  "version": "1.0.2",
+  "version": "1.0.4",
   "description": "Rx-based Redux implementation.",
   "main": "./dist/src/index.js",
   "types": "./dist/src/index.d.ts",
@@ -8,7 +8,7 @@
   "scripts": {
     "setup": "npm install",
     "build": "tsc",
-    "test": "jest"
+    "test": "tsc & jest"
   },
   "repository": {
     "type": "git",

@@ -60,38 +60,46 @@ export class Self implements Provider.Type, ConvertibleType, Type {
   }
 
   /**
-   * Convenience value to stream a string from a node.
+   * Convenience method to stream a string from a node.
    * @param {string} id A string value.
    * @returns {Observable<Try<string>>} An Observable instance. 
    */
   public stringAtNode = (id: string): Observable<Try<string>> => {
-    return this.valueAtNode(id)
-      .map(v => v.filter(v1 => typeof(v1) === 'string', `No string at ${id}`))
-      .map(v => v.map(v1 => <string>v1))
+    return this.stateStream()
+      .map(v => v.stringAtNode(id))
       .distinctUntilChanged((v1, v2) => v1.value === v2.value);
   } 
 
   /**
-   * Convenience value to stream a number from a node.
+   * Convenience method to stream a number from a node.
    * @param {string} id A string value.
    * @returns {Observable<Try<number>>} An Observable instance. 
    */
   public numberAtNode = (id: string): Observable<Try<number>> => {
-    return this.valueAtNode(id)
-      .map(v => v.filter(v1 => typeof(v1) === 'number', `No number at ${id}`))
-      .map(v => v.map(v1 => <number>v1))
+    return this.stateStream()
+      .map(v => v.numberAtNode(id))
       .distinctUntilChanged((v1, v2) => v1.value === v2.value);
   }
 
   /**
-   * Convenience value to stream a boolean from a node.
+   * Convenience method to stream a boolean from a node.
    * @param {string} id A string value.
    * @returns {Observable<Try<boolean>>} An Observable instance. 
    */
   public booleanAtNode = (id: string): Observable<Try<boolean>> => {
-    return this.valueAtNode(id)
-      .map(v => v.filter(v1 => typeof(v1) === 'boolean', `No boolean at ${id}`))
-      .map(v => v.map(v1 => <boolean>v1))
+    return this.stateStream()
+      .map(v => v.booleanAtNode(id))
       .distinctUntilChanged((v1, v2) => v1.value === v2.value);
+  }
+
+  /**
+   * Convenience method to stream R from a node.
+   * @template R Generics parameter.
+   * @param {new () => R} ctor Constructor function.
+   * @param {string} id A string value.
+   * @returns {Observable<Try<R>>} An Observable instance.
+   */
+  public instanceAtNode<R>(ctor: new () => R, id: string): Observable<Try<R>> {
+    return this.stateStream().map(v => v.instanceAtNode(ctor, id));
   }
 }
