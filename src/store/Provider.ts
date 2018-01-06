@@ -7,6 +7,11 @@ import * as RxStore from './RxStore';
  */
 export interface Type {
   store: StoreType;
+
+  /**
+   * Provide the separator here to avoid duplicating elsewhere.
+   */
+  substateSeparator: string;
 }
 
 /**
