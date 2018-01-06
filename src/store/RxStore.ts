@@ -1,8 +1,10 @@
 import { Observable } from 'rxjs';
+import { Try } from 'javascriptutilities';
 import { State as S } from 'typesafereduxstate-js';
-import { Reducer } from './types';
-import * as Wrapper from './Wrapper';
+import { Type as StoreType } from './types';
+import * as Utils from './util';
 
+export type Reducer<T> = (state: S.Self<T>, value: T) => S.Self<T>;
 export type RxReducer<T> = (state: S.Self<T>) => S.Self<T>;
 
 /**
@@ -42,25 +44,42 @@ export let create = (...reducers: Observable<RxReducer<any>>[]): Observable<S.Se
 };
 
 /**
+ * Represents a rx-based store.
+ * @extends {StoreType} StoreType extension.
+ */
+export interface Type extends StoreType {}
+
+/**
  * This store is optional. It only provides some convenience when dealing with
  * state streams.
+ * @implements {Type} Type implementation.
  */
-export class Self implements Wrapper.ConvertibleType, Wrapper.Type {
+export class Self implements Type {
   private store: Observable<S.Self<any>>;
 
   public constructor(...reducers: Observable<RxReducer<any>>[]) {
     this.store = create(...reducers);
   }
 
-  /**
-   * Get a store wrapper.
-   * @returns {Wrapper.Self} A Wrapper.Self instance.
-   */
-  public toWrapper = (): Wrapper.Self => new Wrapper.Self(this);
-
-  /**
-   * Expose the inner store.
-   * @returns {Observable<S.Self<any>>} An Observable instance.
-   */
   public stateStream = (): Observable<S.Self<any>> => this.store;
+
+  public valueAtNode = (id: string): Observable<Try<any>> => {
+    return Utils.valueAtNode(this.store, id);
+  }
+
+  public stringAtNode = (id: string): Observable<Try<string>> => {
+    return Utils.stringAtNode(this.store, id);
+  }
+
+  public numberAtNode = (id: string): Observable<Try<number>> => {
+    return Utils.numberAtNode(this.store, id);
+  }
+
+  public booleanAtNode = (id: string): Observable<Try<boolean>> => {
+    return Utils.booleanAtNode(this.store, id);
+  }
+
+  public instanceAtNode<R>(ctor: new () => R, id: string): Observable<Try<R>> {
+    return Utils.instanceAtNode(this.store, ctor, id);
+  }
 }
