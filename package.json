@@ -1,6 +1,6 @@
 {
   "name": "reactiveredux-js",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "description": "Rx-based Redux implementation.",
   "main": "./dist/src/index.js",
   "types": "./dist/src/index.d.ts",

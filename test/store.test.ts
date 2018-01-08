@@ -8,6 +8,9 @@ let timeout = 100;
 let path1 = 'a.b.c.d';
 let path2 = 'a.b.c.d.e';
 let path3 = 'a.b.c';
+let actionKey1 = 'action1';
+let actionKey2 = 'action2';
+let actionKey3 = 'action3';
 let numbers = [1, 2, 3, 4, 5];
 let strings = ['1', '2', '3', '4', '5'];
 let booleans = [true, false, true, false];
@@ -54,34 +57,35 @@ let testReduxStore = (store: ReduxStore.Type, actionFn: () => void): void => {
 
 describe('Rx store should be implemented correctly', () => {
   var action1: BehaviorSubject<number>;
-  var action2: BehaviorSubject<string>;
-  var action3: BehaviorSubject<boolean>;
+  var action2: BehaviorSubject<ReduxStore.Rx.Action.Type<string>>;
+  var action3: BehaviorSubject<ReduxStore.Rx.Action.Type<boolean>>;
   var stateStore: ReduxStore.Rx.Self;
 
   let createStore = (): ReduxStore.Rx.Self => {
     let reducer1 = ReduxStore.Rx.createReducer(action1, (state, v) => {
       return state.mappingValue(path1, v1 => {
-        return v1.map(v2 => v2 + v).successOrElse(Try.success(v));
+        return v1.map(v2 => v2 + v.value).successOrElse(Try.success(v.value));
       });
     });
 
     let reducer2 = ReduxStore.Rx.createReducer(action2, (state, v) => {
       return state.mappingValue(path2, v1 => {
-        return v1.map(v2 => v2 + v).successOrElse(Try.success(v));
+        return v1.map(v2 => v2 + v.value).successOrElse(Try.success(v.value));
       });
     });
 
     let reducer3 = ReduxStore.Rx.createReducer(action3, (state, v) => {
-      return state.updatingValue(path3, v);
+      return state.updatingValue(path3, v.value);
     });
 
     return new ReduxStore.Rx.Self(reducer1, reducer2, reducer3);
   };
 
   beforeEach(() => {
+    /// Here we mix both Action.Type and normal values.
     action1 = new BehaviorSubject(0);
-    action2 = new BehaviorSubject('');
-    action3 = new BehaviorSubject(false);
+    action2 = new BehaviorSubject({ name: actionKey2, value: '' });
+    action3 = new BehaviorSubject({ name: actionKey3, value: false });
     stateStore = createStore();
   });
 
@@ -89,9 +93,9 @@ describe('Rx store should be implemented correctly', () => {
     testReduxStore(stateStore, () => {
       numbers.forEach(v => action1.next(v));
       setTimeout(undefined, timeout);
-      strings.forEach(v => action2.next(v));
+      strings.forEach(v => action2.next({ name: actionKey2, value: v }));
       setTimeout(undefined, timeout);
-      booleans.forEach(v => action3.next(v));
+      booleans.forEach(v => action3.next({ name: actionKey3, value: v }));
       setTimeout(undefined, timeout);
     });
   });
@@ -99,9 +103,6 @@ describe('Rx store should be implemented correctly', () => {
 
 describe('Dispatch store should be implemented correctly', () => {
   var stateStore: ReduxStore.Dispatch.Self;
-  let actionKey1 = 'action1';
-  let actionKey2 = 'action2';
-  let actionKey3 = 'action3';
 
   let actionFn1 = (v: number): ReduxStore.Dispatch.Action.Type<number> => ({
     id: actionKey1,
