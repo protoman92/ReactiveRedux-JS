@@ -101,6 +101,7 @@ export class Self implements Type {
     this.store = create(...reducers);
   }
 
+  public stateInfoStream = (): Observable<StateInfo.Type<any>> => this.store;
   public stateStream = (): Observable<S.Self<any>> => this.store.map(v => v.state);
 
   public valueAtNode = (id: string): Observable<Try<any>> => {
