@@ -148,7 +148,7 @@ describe('Dispatch store should be implemented correctly', () => {
     stateStore = ReduxStore.Dispatch.createDefault(reducer);
   });
 
-  it.only('Dispatch action with subject - should work', () => {
+  it('Dispatch action with subject - should work', () => {
     testReduxStore(stateStore, () => {
       numbers.map(v => actionFn1(v)).forEach(v => stateStore.dispatch(v));
       setTimeout(undefined, timeout);

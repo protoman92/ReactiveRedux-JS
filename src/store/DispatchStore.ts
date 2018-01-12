@@ -1,27 +1,8 @@
-import { BehaviorSubject, Observable, Observer, Subject, Subscription } from 'rxjs';
-import { Nullable, Try } from 'javascriptutilities';
+import { BehaviorSubject, Observable, Observer, Subscription } from 'rxjs';
+import { IncompletableSubject, Nullable, Try } from 'javascriptutilities';
 import { State as S } from 'typesafereduxstate-js';
 import { Type as StoreType } from './types';
 import * as Utils from './util';
-
-/**
- * Wrap another observer to ignore completed events.
- * @implements {Observer<T>} Observer implementation.
- */
-class NonCompleteObserver<T> implements Observer<T> {
-  private readonly subject: Subject<T>;
-
-  public constructor(subject: Subject<T>) {
-    this.subject = subject;
-  }
-
-  public asObservable = (): Observable<T> => this.subject.asObservable();
-  public next = (value: T): void => this.subject.next(value);
-
-  /// Ignore error and complete events.
-  public error = (): void => {};
-  public complete = (): void => {};
-}
 
 export namespace Action {
   /**
@@ -53,12 +34,12 @@ export interface Type extends StoreType {
  * @implements {Type} Type implementation.
  */
 export class Self implements Type {
-  private readonly action: NonCompleteObserver<Nullable<Action.Type<any>>>;
+  private readonly action: IncompletableSubject<Nullable<Action.Type<any>>>;
   private readonly state: BehaviorSubject<S.Self<any>>;
   private readonly subscription: Subscription;
 
   public constructor() {
-    this.action = new NonCompleteObserver(new BehaviorSubject(undefined));
+    this.action = new IncompletableSubject(new BehaviorSubject(undefined));
     this.state = new BehaviorSubject(S.empty<any>());
     this.subscription = new Subscription();
   }
