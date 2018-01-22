@@ -37,7 +37,7 @@ export type RxReducer<T> = (state: S.Self<T>) => StateInfo.Type<T>;
  * @returns {Action.Type<T>} An Action type instance.
  */
 function createAction<T>(action: ActionType<T>): Action.Type<T> {
-  if (Types.isInstance<Action.Type<T>>(action, ['name', 'value'])) {
+  if (Types.isInstance<Action.Type<T>>(action, 'name', 'value')) {
     return action;
   } else {
     return { name: 'DummyAction', value: action };
