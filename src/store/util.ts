@@ -21,8 +21,7 @@ export let valueAtNode = (stream: STStream, id: string): Observable<Try<any>> =>
  * @returns {Observable<Try<string>>} An Observable instance. 
  */
 export let stringAtNode = (stream: STStream, id: string): Observable<Try<string>> => {
-  return stream.map(v => v.stringAtNode(id))
-    .distinctUntilChanged((v1, v2) => v1.value === v2.value);
+  return stream.map(v => v.stringAtNode(id));
 };
 
 /**
@@ -32,8 +31,7 @@ export let stringAtNode = (stream: STStream, id: string): Observable<Try<string>
  * @returns {Observable<Try<number>>} An Observable instance. 
  */
 export let numberAtNode = (stream: STStream, id: string): Observable<Try<number>> => {
-  return stream.map(v => v.numberAtNode(id))
-    .distinctUntilChanged((v1, v2) => v1.value === v2.value);
+  return stream.map(v => v.numberAtNode(id));
 };
 
 /**
@@ -43,8 +41,7 @@ export let numberAtNode = (stream: STStream, id: string): Observable<Try<number>
  * @returns {Observable<Try<boolean>>} An Observable instance. 
  */
 export let booleanAtNode = (stream: STStream, id: string): Observable<Try<boolean>> => {
-  return stream.map(v => v.booleanAtNode(id))
-    .distinctUntilChanged((v1, v2) => v1.value === v2.value);
+  return stream.map(v => v.booleanAtNode(id));
 };
 
 /**

@@ -25,25 +25,10 @@ let testReduxStore = (store: ReduxStore.Type, actionFn: () => void): void => {
   var values3: Nullable<boolean>[] = [];
   var states: Nullable<State.Self<any>>[] = [];
 
-  store.stateStream()
-    .doOnNext(v => states.push(v))
-    .logNext(v => v.flatten())
-    .subscribe();
-
-  store.numberAtNode(path1)
-    .doOnNext(v => values1.push(v.value))
-    .logNext(v => v.value)
-    .subscribe();
-
-  store.stringAtNode(path2)
-    .doOnNext(v => values2.push(v.value))
-    .logNext(v => v.value)
-    .subscribe();
-
-  store.booleanAtNode(path3)
-    .doOnNext(v => values3.push(v.value))
-    .logNext(v => v.value)
-    .subscribe();
+  store.stateStream().doOnNext(v => states.push(v)).subscribe();
+  store.numberAtNode(path1).doOnNext(v => values1.push(v.value)).subscribe();
+  store.stringAtNode(path2).doOnNext(v => values2.push(v.value)).subscribe();
+  store.booleanAtNode(path3).doOnNext(v => values3.push(v.value)).subscribe();
 
   /// When
   actionFn();
@@ -148,7 +133,7 @@ describe('Dispatch store should be implemented correctly', () => {
     stateStore = ReduxStore.Dispatch.createDefault(reducer);
   });
 
-  it('Dispatch action with subject - should work', () => {
+  it('Dispatch action with action creators - should work', () => {
     testReduxStore(stateStore, () => {
       numbers.map(v => actionFn1(v)).forEach(v => stateStore.dispatch(v));
       setTimeout(undefined, timeout);
