@@ -1,5 +1,12 @@
-import { BehaviorSubject, Observable, Observer, Subscription } from 'rxjs';
-import { IncompletableSubject, Nullable, Try } from 'javascriptutilities';
+import { BehaviorSubject, Observable, Subscription } from 'rxjs';
+
+import {
+  IncompletableSubject,
+  MappableObserver,
+  Nullable,
+  Try,
+} from 'javascriptutilities';
+
 import { State as S } from 'typesafereduxstate-js';
 import { Type as StoreType } from './types';
 import * as Utils from './util';
@@ -24,7 +31,7 @@ export type Reducer<T> = (state: S.Self<T>, action: Action.Type<T>) => S.Self<T>
  */
 export interface Type extends StoreType {
   dispatch(action: Action.Type<any>): void;
-  actionTrigger(): Observer<Nullable<Action.Type<any>>>;
+  actionTrigger(): MappableObserver.Type<Nullable<Action.Type<any>>>;
   actionStream(): Observable<Action.Type<any>>;
 }
 
@@ -60,7 +67,7 @@ export class Self implements Type {
     this.actionTrigger().next(action);
   }
 
-  public actionTrigger = (): Observer<Nullable<Action.Type<any>>> => {
+  public actionTrigger = (): MappableObserver.Type<Nullable<Action.Type<any>>> => {
     return this.action;
   }
 
