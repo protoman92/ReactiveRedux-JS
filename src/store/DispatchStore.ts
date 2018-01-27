@@ -7,7 +7,7 @@ import {
   Try,
 } from 'javascriptutilities';
 
-import { State as S } from 'typesafereduxstate-js';
+import { State as S } from 'type-safe-state-js';
 import { Type as StoreType } from './types';
 import * as Utils from './util';
 

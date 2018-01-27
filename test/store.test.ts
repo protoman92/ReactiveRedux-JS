@@ -1,6 +1,6 @@
 import { BehaviorSubject } from 'rxjs';
 import { Collections as Cols, Nullable, Numbers, Try } from 'javascriptutilities';
-import { State } from 'typesafereduxstate-js';
+import { State } from 'type-safe-state-js';
 import { ReduxStore } from './../src';
 import { Reducer as DispatchReducer } from './../src/store/DispatchStore';
 

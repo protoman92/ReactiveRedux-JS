@@ -1,6 +1,6 @@
 import { Observable } from 'rxjs';
 import { Try } from 'javascriptutilities';
-import { State } from 'typesafereduxstate-js';
+import { State } from 'type-safe-state-js';
 
 /**
  * Represents the basic store type.
