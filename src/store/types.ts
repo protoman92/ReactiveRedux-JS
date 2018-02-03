@@ -9,9 +9,9 @@ export interface Type {
   /**
    * Common state stream that emits state sequentially as changes are reduced
    * onto old states.
-   * @returns {Observable<State.Self<any>>} An Observable instance.
+   * @returns {Observable<State.Type<any>>} An Observable instance.
    */
-  stateStream(): Observable<State.Self<any>>;
+  stateStream(): Observable<State.Type<any>>;
 
   /**
    * Stream the value at a node.

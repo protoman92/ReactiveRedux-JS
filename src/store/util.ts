@@ -2,7 +2,7 @@ import { Observable } from 'rxjs';
 import { Try } from 'javascriptutilities';
 import { State } from 'type-safe-state-js';
 
-export type STStream = Observable<State.Self<any>>;
+export type STStream = Observable<State.Type<any>>;
 
 /**
  * Stream the value at a node.

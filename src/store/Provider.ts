@@ -6,12 +6,12 @@ import * as RxStore from './RxStore';
  * Provide a store for external usage.
  */
 export interface Type {
-  store: StoreType;
+  readonly store: StoreType;
 
   /**
    * Provide the separator here to avoid duplicating elsewhere.
    */
-  substateSeparator: string;
+  readonly substateSeparator: string;
 }
 
 /**
@@ -19,7 +19,7 @@ export interface Type {
  * @extends {Type} Type implementation.
  */
 export interface RxType extends Type {
-  store: RxStore.Self;
+  readonly store: RxStore.Self;
 }
 
 /**
@@ -27,5 +27,5 @@ export interface RxType extends Type {
  * @extends {Type} Type implementation.
  */
 export interface DispatchType extends Type {
-  store: DispatchStore.Type;
+  readonly store: DispatchStore.Type;
 }

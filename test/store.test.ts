@@ -23,7 +23,7 @@ let testReduxStore = (store: ReduxStore.Type, actionFn: () => void): void => {
   var values1: Nullable<number>[] = [];
   var values2: Nullable<string>[] = [];
   var values3: Nullable<boolean>[] = [];
-  var states: Nullable<State.Self<any>>[] = [];
+  var states: Nullable<State.Type<any>>[] = [];
 
   store.stateStream().doOnNext(v => states.push(v)).subscribe();
   store.numberAtNode(path1).doOnNext(v => values1.push(v.value)).subscribe();

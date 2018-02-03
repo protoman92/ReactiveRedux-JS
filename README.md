@@ -25,18 +25,18 @@ let action3 = BehaviorSubject<boolean>(false);
 Then **map** these **BehaviorSubject** objects to emit **RxReducer** whose type signature is as follows:
 
 ```typescript
-type RxReducer<T> = (state: State.Self<T>): State.Self<T>;
+type RxReducer<T> = (state: State.Type<T>): State.Type<T>;
 ```
 
 Which is a function to be called when new value arrives for a stream. A sample setup is as follows:
 
 ```typescript
-let pureReducer1: (state: State.Self<any>, value: any) => State.Self<any> = v => {
+let pureReducer1: (state: State.Type<any>, value: any) => State.Type<any> = v => {
   return v.updatingValue('a.b.c', value);
 };
 
 let reducer1: Observable<RxReducer<any>> = action1.map(v => {
-  return (state: State.Self<any>) => pureReducer(state, v);
+  return (state: State.Type<any>) => pureReducer(state, v);
 });
 
 let reducer2 = ...;

@@ -10,8 +10,8 @@ export namespace Action {
    * @template T Generics parameter.
    */
   export interface Type<T> {
-    name: string;
-    value: T;
+    readonly name: string;
+    readonly value: T;
   }
 }
 
@@ -21,14 +21,14 @@ export namespace StateInfo {
    * @template T Generics parameter.
    */
   export interface Type<T> {
-    state: S.Self<T>;
-    lastAction: Nullable<Action.Type<T>>;
+    readonly state: S.Type<T>;
+    readonly lastAction: Nullable<Action.Type<T>>;
   }
 }
 
 export type ActionType<T> = Action.Type<T> | T;
-export type Reducer<T> = (state: S.Self<T>, action: Action.Type<T>) => S.Self<T>;
-export type RxReducer<T> = (state: S.Self<T>) => StateInfo.Type<T>;
+export type Reducer<T> = (state: S.Type<T>, action: Action.Type<T>) => S.Type<T>;
+export type RxReducer<T> = (state: S.Type<T>) => StateInfo.Type<T>;
 
 /**
  * Convenience method to create an action with a default name.
@@ -55,7 +55,7 @@ function createAction<T>(action: ActionType<T>): Action.Type<T> {
  * @returns {Observable<RxReducer<T>>} An Observable instance.
  */
 export function createReducer<T>(obs: Observable<ActionType<T>>, reducer: Reducer<T>): Observable<RxReducer<T>> {
-  return obs.map(v => (state: S.Self<T>) => {
+  return obs.map(v => (state: S.Type<T>) => {
     let action = createAction(v);
     return { state: reducer(state, action), lastAction: createAction(action) };
   });
@@ -102,7 +102,7 @@ export class Self implements Type {
   }
 
   public stateInfoStream = (): Observable<StateInfo.Type<any>> => this.store;
-  public stateStream = (): Observable<S.Self<any>> => this.store.map(v => v.state);
+  public stateStream = (): Observable<S.Type<any>> => this.store.map(v => v.state);
 
   public valueAtNode = (id: string): Observable<Try<any>> => {
     return Utils.valueAtNode(this.stateStream(), id);

@@ -17,13 +17,13 @@ export namespace Action {
    * @template T Generics parameter.
    */
   export interface Type<T> {
-    id: string;
-    fullValuePath: string;
-    payload: T;
+    readonly id: string;
+    readonly fullValuePath: string;
+    readonly payload: T;
   }
 }
 
-export type Reducer<T> = (state: S.Self<T>, action: Action.Type<T>) => S.Self<T>;
+export type Reducer<T> = (state: S.Type<T>, action: Action.Type<T>) => S.Type<T>;
 
 /**
  * Represents a dispatch store type.
@@ -42,7 +42,7 @@ export interface Type extends StoreType {
  */
 export class Self implements Type {
   private readonly action: IncompletableSubject<Nullable<Action.Type<any>>>;
-  private readonly state: BehaviorSubject<S.Self<any>>;
+  private readonly state: BehaviorSubject<S.Type<any>>;
   private readonly subscription: Subscription;
 
   public constructor() {
@@ -75,7 +75,7 @@ export class Self implements Type {
     return this.action.asObservable().mapNonNilOrEmpty(v => v);
   }
 
-  public stateStream = (): Observable<S.Self<any>> => this.state;
+  public stateStream = (): Observable<S.Type<any>> => this.state;
 
   public valueAtNode = (id: string): Observable<Try<any>> => {
     return Utils.valueAtNode(this.state, id);
