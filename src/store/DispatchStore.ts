@@ -11,7 +11,7 @@ import {
   mapNonNilOrEmpty,
 } from 'rx-utilities-js';
 
-export namespace Action {
+export namespace action {
   /**
    * Represents an action to be dispatched to the global state.
    * @template T Generics parameter.
@@ -23,16 +23,16 @@ export namespace Action {
   }
 }
 
-export type Reducer<T> = (state: S.Type<T>, action: Action.Type<T>) => S.Type<T>;
+export type Reducer<T> = (state: S.Type<T>, action: action.Type<T>) => S.Type<T>;
 
 /**
  * Represents a dispatch store type.
  * @extends {StoreType} Store type extension.
  */
 export interface Type extends StoreType {
-  dispatch(action: Action.Type<any>): void;
-  actionTrigger(): MappableObserver.Type<Nullable<Action.Type<any>>>;
-  actionStream(): Observable<Action.Type<any>>;
+  dispatch(action: action.Type<any>): void;
+  actionTrigger(): MappableObserver.Type<Nullable<action.Type<any>>>;
+  actionStream(): Observable<action.Type<any>>;
 }
 
 /**
@@ -41,7 +41,7 @@ export interface Type extends StoreType {
  * @implements {Type} Type implementation.
  */
 export class Self implements Type {
-  private readonly action: IncompletableSubject<Nullable<Action.Type<any>>>;
+  private readonly action: IncompletableSubject<Nullable<action.Type<any>>>;
   private readonly state: BehaviorSubject<S.Type<any>>;
   private readonly subscription: Subscription;
 
@@ -55,7 +55,7 @@ export class Self implements Type {
     let disposable = this.action.asObservable()
       .pipe(
         mapNonNilOrEmpty(v => v),
-        scan((acc: S.Type<any>, action: Action.Type<any>): S.Type<any> => {
+        scan((acc: S.Type<any>, action: action.Type<any>): S.Type<any> => {
           return reducer(acc, action);
         }, this.state.value))
       .subscribe(this.state);
@@ -67,15 +67,15 @@ export class Self implements Type {
     this.subscription.unsubscribe();
   }
 
-  public dispatch(action: Action.Type<any>): void {
+  public dispatch(action: action.Type<any>): void {
     this.actionTrigger().next(action);
   }
 
-  public actionTrigger(): MappableObserver.Type<Nullable<Action.Type<any>>> {
+  public actionTrigger(): MappableObserver.Type<Nullable<action.Type<any>>> {
     return this.action;
   }
 
-  public actionStream(): Observable<Action.Type<any>> {
+  public actionStream(): Observable<action.Type<any>> {
     return this.action.asObservable().pipe(mapNonNilOrEmpty(v => v));
   }
 

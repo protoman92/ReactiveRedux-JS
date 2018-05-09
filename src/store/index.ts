@@ -1,7 +1,6 @@
-import * as Provider from './Provider';
-import * as Dispatch from './DispatchStore';
-import * as Rx from './RxStore';
+import * as dispatch from './dispatchstore';
+import * as rx from './RxStore';
 import { Reducer as DispatchReducer } from './DispatchStore';
-import { RxReducer } from './RxStore';
+import { RxReducer } from './rxstore';
 import { Type } from './types';
-export { Dispatch, DispatchReducer, Provider, Rx, RxReducer, Type };
+export { dispatch, DispatchReducer, rx, RxReducer, Type };

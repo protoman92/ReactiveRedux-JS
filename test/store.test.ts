@@ -1,8 +1,8 @@
 import { BehaviorSubject } from 'rxjs';
-import { Collections as Cols, Nullable, Numbers, Try } from 'javascriptutilities';
+import { Collections, Nullable, Numbers, Try } from 'javascriptutilities';
 import { doOnNext } from 'rx-utilities-js';
 import { State } from 'type-safe-state-js';
-import { ReduxStore } from './../src';
+import { reduxstore } from './../src';
 import { Reducer as DispatchReducer } from './../src/store/DispatchStore';
 
 let timeout = 100;
@@ -16,7 +16,7 @@ let numbers = [1, 2, 3, 4, 5];
 let strings = ['1', '2', '3', '4', '5'];
 let booleans = [true, false, true, false];
 
-let testReduxStore = (store: ReduxStore.Type, actionFn: () => void): void => {
+let testReduxStore = (store: reduxstore.Type, actionFn: () => void): void => {
   /// Setup
   let numbers = [1, 2, 3, 4, 5];
   let strings = ['1', '2', '3', '4', '5'];
@@ -35,36 +35,36 @@ let testReduxStore = (store: ReduxStore.Type, actionFn: () => void): void => {
   actionFn();
 
   /// Then
-  expect(Cols.last(values1).value).toEqual(Numbers.sum(numbers));
-  expect(Cols.last(values2).value).toEqual(strings.reduce((v1, v2) => v1 + v2));
-  expect(Cols.last(values3).value).toEqual(Cols.last(booleans).value);
+  expect(Collections.last(values1).value).toEqual(Numbers.sum(numbers));
+  expect(Collections.last(values2).value).toEqual(strings.reduce((v1, v2) => v1 + v2));
+  expect(Collections.last(values3).value).toEqual(Collections.last(booleans).value);
   expect(states.every(v => v !== undefined && v !== null)).toBeTruthy();
 };
 
 describe('Rx store should be implemented correctly', () => {
   var action1: BehaviorSubject<number>;
-  var action2: BehaviorSubject<ReduxStore.Rx.Action.Type<string>>;
-  var action3: BehaviorSubject<ReduxStore.Rx.Action.Type<boolean>>;
-  var stateStore: ReduxStore.Rx.Self;
+  var action2: BehaviorSubject<reduxstore.rx.action.Type<string>>;
+  var action3: BehaviorSubject<reduxstore.rx.action.Type<boolean>>;
+  var stateStore: reduxstore.rx.Self;
 
-  let createStore = (): ReduxStore.Rx.Self => {
-    let reducer1 = ReduxStore.Rx.createReducer(action1, (state, v) => {
+  let createStore = (): reduxstore.rx.Self => {
+    let reducer1 = reduxstore.rx.createReducer(action1, (state, v) => {
       return state.mappingValue(path1, v1 => {
         return v1.map(v2 => v2 + v.value).successOrElse(Try.success(v.value));
       });
     });
 
-    let reducer2 = ReduxStore.Rx.createReducer(action2, (state, v) => {
+    let reducer2 = reduxstore.rx.createReducer(action2, (state, v) => {
       return state.mappingValue(path2, v1 => {
         return v1.map(v2 => v2 + v.value).successOrElse(Try.success(v.value));
       });
     });
 
-    let reducer3 = ReduxStore.Rx.createReducer(action3, (state, v) => {
+    let reducer3 = reduxstore.rx.createReducer(action3, (state, v) => {
       return state.updatingValue(path3, v.value);
     });
 
-    return new ReduxStore.Rx.Self(reducer1, reducer2, reducer3);
+    return new reduxstore.rx.Self(reducer1, reducer2, reducer3);
   };
 
   beforeEach(() => {
@@ -88,21 +88,21 @@ describe('Rx store should be implemented correctly', () => {
 });
 
 describe('Dispatch store should be implemented correctly', () => {
-  var stateStore: ReduxStore.Dispatch.Self;
+  var stateStore: reduxstore.dispatch.Self;
 
-  let actionFn1 = (v: number): ReduxStore.Dispatch.Action.Type<number> => ({
+  let actionFn1 = (v: number): reduxstore.dispatch.action.Type<number> => ({
     id: actionKey1,
     fullValuePath: path1,
     payload: v,
   });
 
-  let actionFn2 = (v: string): ReduxStore.Dispatch.Action.Type<string> => ({
+  let actionFn2 = (v: string): reduxstore.dispatch.action.Type<string> => ({
     id: actionKey2,
     fullValuePath: path2,
     payload: v,
   });
 
-  let actionFn3 = (v: boolean): ReduxStore.Dispatch.Action.Type<boolean> => ({
+  let actionFn3 = (v: boolean): reduxstore.dispatch.action.Type<boolean> => ({
     id: actionKey3,
     fullValuePath: path3,
     payload: v,
@@ -131,7 +131,7 @@ describe('Dispatch store should be implemented correctly', () => {
   };
 
   beforeEach(() => {
-    stateStore = ReduxStore.Dispatch.createDefault(reducer);
+    stateStore = reduxstore.dispatch.createDefault(reducer);
   });
 
   it('Dispatch action with action creators - should work', () => {
