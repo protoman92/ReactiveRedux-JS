@@ -2,8 +2,8 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![npm version](https://badge.fury.io/js/reactive-rx-redux-js.svg)](https://badge.fury.io/js/reactive-rx-redux-js)
-[![Build Status](https://travis-ci.org/protoman92/ReactiveRedux-JS.svg?branch=master)](https://travis-ci.org/protoman92/ReactiveRedux-JS)
-[![Coverage Status](https://coveralls.io/repos/github/protoman92/ReactiveRedux-JS/badge.svg?branch=master)](https://coveralls.io/github/protoman92/ReactiveRedux-JS?branch=master)
+[![Build Status](https://travis-ci.org/protoman92/reactive-rx-redux-js.svg?branch=master)](https://travis-ci.org/protoman92/reactive-rx-redux-js)
+[![Coverage Status](https://coveralls.io/repos/github/protoman92/reactive-rx-redux-js/badge.svg?branch=master)](https://coveralls.io/github/protoman92/reactive-rx-redux-js?branch=master)
 
 Rx-based Redux implementation, inspired by https://github.com/Holmusk/HMReactiveRedux-iOS.git.
 
