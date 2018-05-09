@@ -39,14 +39,5 @@ export interface Type {
    * @param {string} id A string value.
    * @returns {Observable<Try<boolean>>} An Observable instance. 
    */
-  booleanAtNode(id: string): Observable<Try<boolean>>; 
-
-  /**
-   * Convenience method to stream R from a node.
-   * @template R Generics parameter.
-   * @param {new () => R} ctor Constructor function.
-   * @param {string} id A string value.
-   * @returns {Observable<Try<R>>} An Observable instance.
-   */
-  instanceAtNode<R>(ctor: new () => R, id: string): Observable<Try<R>>;
+  booleanAtNode(id: string): Observable<Try<boolean>>;
 }

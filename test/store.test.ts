@@ -1,5 +1,6 @@
 import { BehaviorSubject } from 'rxjs';
 import { Collections as Cols, Nullable, Numbers, Try } from 'javascriptutilities';
+import { doOnNext } from 'rx-utilities-js';
 import { State } from 'type-safe-state-js';
 import { ReduxStore } from './../src';
 import { Reducer as DispatchReducer } from './../src/store/DispatchStore';
@@ -25,10 +26,10 @@ let testReduxStore = (store: ReduxStore.Type, actionFn: () => void): void => {
   var values3: Nullable<boolean>[] = [];
   var states: Nullable<State.Type<any>>[] = [];
 
-  store.stateStream().doOnNext(v => states.push(v)).subscribe();
-  store.numberAtNode(path1).doOnNext(v => values1.push(v.value)).subscribe();
-  store.stringAtNode(path2).doOnNext(v => values2.push(v.value)).subscribe();
-  store.booleanAtNode(path3).doOnNext(v => values3.push(v.value)).subscribe();
+  store.stateStream().pipe(doOnNext(v => states.push(v))).subscribe();
+  store.numberAtNode(path1).pipe(doOnNext(v => values1.push(v.value))).subscribe();
+  store.stringAtNode(path2).pipe(doOnNext(v => values2.push(v.value))).subscribe();
+  store.booleanAtNode(path3).pipe(doOnNext(v => values3.push(v.value))).subscribe();
 
   /// When
   actionFn();

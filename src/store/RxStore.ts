@@ -1,4 +1,5 @@
-import { Observable } from 'rxjs';
+import { Observable, merge } from 'rxjs';
+import { map, scan, shareReplay, startWith } from 'rxjs/operators';
 import { Nullable, Try, Types } from 'javascriptutilities';
 import { State as S } from 'type-safe-state-js';
 import { Type as StoreType } from './types';
@@ -55,10 +56,10 @@ function createAction<T>(action: ActionType<T>): Action.Type<T> {
  * @returns {Observable<RxReducer<T>>} An Observable instance.
  */
 export function createReducer<T>(obs: Observable<ActionType<T>>, reducer: Reducer<T>): Observable<RxReducer<T>> {
-  return obs.map(v => (state: S.Type<T>) => {
+  return obs.pipe(map(v => (state: S.Type<T>) => {
     let action = createAction(v);
     return { state: reducer(state, action), lastAction: createAction(action) };
-  });
+  }));
 }
 
 /**
@@ -77,17 +78,20 @@ export function createReducer<T>(obs: Observable<ActionType<T>>, reducer: Reduce
  * @returns {Observable<StateInfo.Type<T>>} An Observable instance.
  */
 export function create<T>(...reducers: Observable<RxReducer<T>>[]): Observable<StateInfo.Type<T>> {
-  return Observable.merge(...reducers)
-    .scan((v1, v2) => v2(v1.state), { state: S.empty<T>(), lastAction: undefined })
-    .startWith({ state: S.empty<T>(), lastAction: undefined })
-    .shareReplay(1);
+  return merge(...reducers).pipe(
+    scan((v1: StateInfo.Type<T>, v2: RxReducer<T>) => {
+      return v2(v1.state);
+    }, { state: S.empty<T>(), lastAction: undefined }),
+    startWith({ state: S.empty<T>(), lastAction: undefined }),
+    shareReplay(1),
+  );
 }
 
 /**
  * Represents a rx-based store.
  * @extends {StoreType} StoreType extension.
  */
-export interface Type extends StoreType {}
+export interface Type extends StoreType { }
 
 /**
  * This store is optional. It only provides some convenience when dealing with
@@ -101,26 +105,27 @@ export class Self implements Type {
     this.store = create(...reducers);
   }
 
-  public stateInfoStream = (): Observable<StateInfo.Type<any>> => this.store;
-  public stateStream = (): Observable<S.Type<any>> => this.store.map(v => v.state);
+  public stateInfoStream(): Observable<StateInfo.Type<any>> {
+    return this.store;
+  }
 
-  public valueAtNode = (id: string): Observable<Try<any>> => {
+  public stateStream(): Observable<S.Type<any>> {
+    return this.store.pipe(map(v => v.state));
+  }
+
+  public valueAtNode(id: string): Observable<Try<any>> {
     return Utils.valueAtNode(this.stateStream(), id);
   }
 
-  public stringAtNode = (id: string): Observable<Try<string>> => {
+  public stringAtNode(id: string): Observable<Try<string>> {
     return Utils.stringAtNode(this.stateStream(), id);
   }
 
-  public numberAtNode = (id: string): Observable<Try<number>> => {
+  public numberAtNode(id: string): Observable<Try<number>> {
     return Utils.numberAtNode(this.stateStream(), id);
   }
 
-  public booleanAtNode = (id: string): Observable<Try<boolean>> => {
+  public booleanAtNode(id: string): Observable<Try<boolean>> {
     return Utils.booleanAtNode(this.stateStream(), id);
-  }
-
-  public instanceAtNode<R>(ctor: new () => R, id: string): Observable<Try<R>> {
-    return Utils.instanceAtNode(this.stateStream(), ctor, id);
   }
 }

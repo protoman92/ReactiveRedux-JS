@@ -1,15 +1,15 @@
 import { BehaviorSubject, Observable, Subscription } from 'rxjs';
+import { scan } from 'rxjs/operators';
+import { Nullable, Try } from 'javascriptutilities';
+import { State as S } from 'type-safe-state-js';
+import { Type as StoreType } from './types';
+import * as Utils from './util';
 
 import {
   IncompletableSubject,
   MappableObserver,
-  Nullable,
-  Try,
-} from 'javascriptutilities';
-
-import { State as S } from 'type-safe-state-js';
-import { Type as StoreType } from './types';
-import * as Utils from './util';
+  mapNonNilOrEmpty,
+} from 'rx-utilities-js';
 
 export namespace Action {
   /**
@@ -51,50 +51,52 @@ export class Self implements Type {
     this.subscription = new Subscription();
   }
 
-  public initialize = (reducer: Reducer<any>): void => {
-    this.action.asObservable()
-      .mapNonNilOrEmpty(v => v)
-      .scan((acc, action) => reducer(acc, action), this.state.value)
-      .subscribe(this.state)
-      .toBeDisposedBy(this.subscription);
+  public initialize(reducer: Reducer<any>): void {
+    let disposable = this.action.asObservable()
+      .pipe(
+        mapNonNilOrEmpty(v => v),
+        scan((acc: S.Type<any>, action: Action.Type<any>): S.Type<any> => {
+          return reducer(acc, action);
+        }, this.state.value))
+      .subscribe(this.state);
+
+    this.subscription.add(disposable);
   }
 
-  public deinitialize = (): void => {
+  public deinitialize(): void {
     this.subscription.unsubscribe();
   }
 
-  public dispatch = (action: Action.Type<any>): void => {
+  public dispatch(action: Action.Type<any>): void {
     this.actionTrigger().next(action);
   }
 
-  public actionTrigger = (): MappableObserver.Type<Nullable<Action.Type<any>>> => {
+  public actionTrigger(): MappableObserver.Type<Nullable<Action.Type<any>>> {
     return this.action;
   }
 
-  public actionStream = (): Observable<Action.Type<any>> => {
-    return this.action.asObservable().mapNonNilOrEmpty(v => v);
+  public actionStream(): Observable<Action.Type<any>> {
+    return this.action.asObservable().pipe(mapNonNilOrEmpty(v => v));
   }
 
-  public stateStream = (): Observable<S.Type<any>> => this.state;
+  public stateStream(): Observable<S.Type<any>> {
+    return this.state;
+  }
 
-  public valueAtNode = (id: string): Observable<Try<any>> => {
+  public valueAtNode(id: string): Observable<Try<any>> {
     return Utils.valueAtNode(this.state, id);
   }
 
-  public stringAtNode = (id: string): Observable<Try<string>> => {
+  public stringAtNode(id: string): Observable<Try<string>> {
     return Utils.stringAtNode(this.state, id);
   }
 
-  public numberAtNode = (id: string): Observable<Try<number>> => {
+  public numberAtNode(id: string): Observable<Try<number>> {
     return Utils.numberAtNode(this.state, id);
   }
 
-  public booleanAtNode = (id: string): Observable<Try<boolean>> => {
+  public booleanAtNode(id: string): Observable<Try<boolean>> {
     return Utils.booleanAtNode(this.state, id);
-  }
-
-  public instanceAtNode<R>(ctor: new () => R, id: string): Observable<Try<R>> {
-    return Utils.instanceAtNode(this.state, ctor, id);
   }
 }
 
