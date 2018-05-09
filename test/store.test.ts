@@ -3,7 +3,7 @@ import { Collections, Nullable, Numbers, Try } from 'javascriptutilities';
 import { doOnNext } from 'rx-utilities-js';
 import { State } from 'type-safe-state-js';
 import { reduxstore } from './../src';
-import { Reducer as DispatchReducer } from './../src/store/DispatchStore';
+import { Reducer as DispatchReducer } from './../src/store/dispatch';
 
 let timeout = 100;
 let path1 = 'a.b.c.d';
