@@ -1,5 +1,5 @@
-import { Observable, merge } from 'rxjs';
-import { map, scan, shareReplay, startWith } from 'rxjs/operators';
+import { Observable, merge, queueScheduler } from 'rxjs';
+import { map, scan, observeOn, startWith } from 'rxjs/operators';
 import { Nullable, Try, Types } from 'javascriptutilities';
 import { State as S } from 'type-safe-state-js';
 import { Type as StoreType } from './types';
@@ -64,8 +64,7 @@ export function createReducer<T>(obs: Observable<ActionType<T>>, reducer: Reduce
 
 /**
  * Create a Redux store that accepts an Array of reducer streams, then scan them 
- * to derive the latest state. We also use shareReplay to relay the last value 
- * to new subscribers and share a common subscription.
+ * to derive the latest state.
  * 
  * The setup should be as follows:
  *  - Define BehaviorSubject instances that accept state values.
@@ -83,7 +82,7 @@ export function create<T>(...reducers: Observable<RxReducer<T>>[]): Observable<s
       return v2(v1.state);
     }, { state: S.empty<T>(), lastAction: undefined }),
     startWith({ state: S.empty<T>(), lastAction: undefined }),
-    shareReplay(1),
+    observeOn(queueScheduler),
   );
 }
 

@@ -1,5 +1,5 @@
-import { BehaviorSubject, Observable, Subscription } from 'rxjs';
-import { scan } from 'rxjs/operators';
+import { BehaviorSubject, Observable, Subscription, queueScheduler } from 'rxjs';
+import { observeOn, scan } from 'rxjs/operators';
 import { Nullable, Try } from 'javascriptutilities';
 import { State as S } from 'type-safe-state-js';
 import { Type as StoreType } from './types';
@@ -57,7 +57,9 @@ export class Self implements Type {
         mapNonNilOrEmpty(v => v),
         scan((acc: S.Type<any>, action: action.Type<any>): S.Type<any> => {
           return reducer(acc, action);
-        }, this.state.value))
+        }, this.state.value),
+        observeOn(queueScheduler),
+    )
       .subscribe(this.state);
 
     this.subscription.add(disposable);
