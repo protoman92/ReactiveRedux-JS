@@ -1,6 +1,6 @@
 import { BehaviorSubject } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { Collections, Nullable, Numbers, Try } from 'javascriptutilities';
+import { Collections, Nullable, Try } from 'javascriptutilities';
 import { doOnNext } from 'rx-utilities-js';
 import { State } from 'type-safe-state-js';
 import { reduxstore } from './../src';
@@ -48,7 +48,7 @@ let testReduxStore = (store: reduxstore.Type, actionFn: () => void): void => {
   actionFn();
 
   /// Then
-  expect(Collections.last(values1).value).toEqual(Numbers.sum(numbers));
+  expect(Collections.last(values1).value).toEqual(numbers.reduce((acc, v) => acc + v));
   expect(Collections.last(values2).value).toEqual(strings.reduce((v1, v2) => v1 + v2));
   expect(Collections.last(values3).value).toEqual(Collections.last(booleans).value);
   expect(states.every(v => v !== undefined && v !== null)).toBeTruthy();
