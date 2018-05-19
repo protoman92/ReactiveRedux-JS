@@ -156,5 +156,9 @@ describe('Dispatch store should be implemented correctly', () => {
       booleans.map(v => actionFn3(v)).forEach(v => stateStore.dispatch(v));
       setTimeout(undefined, timeout);
     });
+
+    expect(stateStore.lastState.valueAtNode(path1).isSuccess()).toBeTruthy();
+    expect(stateStore.lastState.valueAtNode(path2).isSuccess()).toBeTruthy();
+    expect(stateStore.lastState.valueAtNode(path3).isSuccess()).toBeTruthy();
   });
 });

@@ -31,6 +31,7 @@ export type Reducer<T> = (state: S.Type<T>, action: action.Type<T>) => S.Type<T>
 export interface Type extends StoreType {
   readonly actionTrigger: MappableObserver.Type<Nullable<action.Type<any>>>;
   readonly actionStream: Observable<action.Type<any>>;
+  readonly lastState: S.Type<any>;
   dispatch(action: action.Type<any>): void;
 }
 
@@ -60,6 +61,10 @@ export class Self implements Type {
 
   public get stateStream(): Observable<S.Type<any>> {
     return this.state;
+  }
+
+  public get lastState(): S.Type<any> {
+    return this.state.value;
   }
 
   public initialize(reducer: Reducer<any>): void {
