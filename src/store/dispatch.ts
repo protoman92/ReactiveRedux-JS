@@ -1,9 +1,8 @@
 import { BehaviorSubject, Observable, Subscription, queueScheduler } from 'rxjs';
 import { observeOn, scan } from 'rxjs/operators';
-import { Nullable, Try } from 'javascriptutilities';
+import { Nullable } from 'javascriptutilities';
 import { State as S } from 'type-safe-state-js';
 import { Type as StoreType } from './types';
-import * as Utils from './util';
 
 import {
   IncompletableSubject,
@@ -30,9 +29,9 @@ export type Reducer<T> = (state: S.Type<T>, action: action.Type<T>) => S.Type<T>
  * @extends {StoreType} Store type extension.
  */
 export interface Type extends StoreType {
+  readonly actionTrigger: MappableObserver.Type<Nullable<action.Type<any>>>;
+  readonly actionStream: Observable<action.Type<any>>;
   dispatch(action: action.Type<any>): void;
-  actionTrigger(): MappableObserver.Type<Nullable<action.Type<any>>>;
-  actionStream(): Observable<action.Type<any>>;
 }
 
 /**
@@ -49,6 +48,18 @@ export class Self implements Type {
     this.action = new IncompletableSubject(new BehaviorSubject(undefined));
     this.state = new BehaviorSubject(S.empty<any>());
     this.subscription = new Subscription();
+  }
+
+  public get actionTrigger(): MappableObserver.Type<Nullable<action.Type<any>>> {
+    return this.action;
+  }
+
+  public get actionStream(): Observable<action.Type<any>> {
+    return this.action.asObservable().pipe(mapNonNilOrEmpty(v => v));
+  }
+
+  public get stateStream(): Observable<S.Type<any>> {
+    return this.state;
   }
 
   public initialize(reducer: Reducer<any>): void {
@@ -70,35 +81,7 @@ export class Self implements Type {
   }
 
   public dispatch(action: action.Type<any>): void {
-    this.actionTrigger().next(action);
-  }
-
-  public actionTrigger(): MappableObserver.Type<Nullable<action.Type<any>>> {
-    return this.action;
-  }
-
-  public actionStream(): Observable<action.Type<any>> {
-    return this.action.asObservable().pipe(mapNonNilOrEmpty(v => v));
-  }
-
-  public stateStream(): Observable<S.Type<any>> {
-    return this.state;
-  }
-
-  public valueAtNode(id: string): Observable<Try<any>> {
-    return Utils.valueAtNode(this.state, id);
-  }
-
-  public stringAtNode(id: string): Observable<Try<string>> {
-    return Utils.stringAtNode(this.state, id);
-  }
-
-  public numberAtNode(id: string): Observable<Try<number>> {
-    return Utils.numberAtNode(this.state, id);
-  }
-
-  public booleanAtNode(id: string): Observable<Try<boolean>> {
-    return Utils.booleanAtNode(this.state, id);
+    this.actionTrigger.next(action);
   }
 }
 
@@ -107,8 +90,8 @@ export class Self implements Type {
  * @param {Reducer<any>} reducer A Reducer instance.
  * @returns {Self} A dispatch store instance.
  */
-export let createDefault = (reducer: Reducer<any>): Self => {
+export function createDefault(reducer: Reducer<any>): Self {
   let store = new Self();
   store.initialize(reducer);
   return store;
-};
+}

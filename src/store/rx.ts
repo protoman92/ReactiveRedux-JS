@@ -1,9 +1,8 @@
 import { Observable, merge, queueScheduler } from 'rxjs';
 import { map, scan, observeOn, startWith } from 'rxjs/operators';
-import { Nullable, Try, Types } from 'javascriptutilities';
+import { Nullable, Types } from 'javascriptutilities';
 import { State as S } from 'type-safe-state-js';
 import { Type as StoreType } from './types';
-import * as Utils from './util';
 
 export namespace action {
   /**
@@ -104,27 +103,11 @@ export class Self implements Type {
     this.store = create(...reducers);
   }
 
-  public stateInfoStream(): Observable<stateinfo.Type<any>> {
+  public get stateInfoStream(): Observable<stateinfo.Type<any>> {
     return this.store;
   }
 
-  public stateStream(): Observable<S.Type<any>> {
+  public get stateStream(): Observable<S.Type<any>> {
     return this.store.pipe(map(v => v.state));
-  }
-
-  public valueAtNode(id: string): Observable<Try<any>> {
-    return Utils.valueAtNode(this.stateStream(), id);
-  }
-
-  public stringAtNode(id: string): Observable<Try<string>> {
-    return Utils.stringAtNode(this.stateStream(), id);
-  }
-
-  public numberAtNode(id: string): Observable<Try<number>> {
-    return Utils.numberAtNode(this.stateStream(), id);
-  }
-
-  public booleanAtNode(id: string): Observable<Try<boolean>> {
-    return Utils.booleanAtNode(this.stateStream(), id);
   }
 }
