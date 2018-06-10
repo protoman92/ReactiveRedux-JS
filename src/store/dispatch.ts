@@ -1,7 +1,6 @@
 import { BehaviorSubject, Observable, Subscription, queueScheduler } from 'rxjs';
 import { observeOn, scan } from 'rxjs/operators';
 import { Nullable } from 'javascriptutilities';
-import { State as S } from 'type-safe-state-js';
 import { Type as StoreType } from './types';
 
 import {
@@ -22,16 +21,17 @@ export namespace action {
   }
 }
 
-export type Reducer<T> = (state: S.Type<T>, action: action.Type<T>) => S.Type<T>;
+export type Reducer<State, T> = (state: State, action: action.Type<T>) => State;
 
 /**
  * Represents a dispatch store type.
  * @extends {StoreType} Store type extension.
+ * @template State Generics parameter.
  */
-export interface Type extends StoreType {
+export interface Type<State> extends StoreType<State> {
   readonly actionTrigger: MappableObserver.Type<Nullable<action.Type<any>>>;
   readonly actionStream: Observable<action.Type<any>>;
-  readonly lastState: S.Type<any>;
+  readonly lastState: State;
   dispatch(action: action.Type<any>): void;
 }
 
@@ -39,15 +39,16 @@ export interface Type extends StoreType {
  * Act as a centralized storage for state. This store can dispatch actions that
  * will be reduced onto the existing state.
  * @implements {Type} Type implementation.
+ * @template State Generics parameter.
  */
-export class Self implements Type {
+export class Self<State> implements Type<State> {
   private readonly action: IncompletableSubject<Nullable<action.Type<any>>>;
-  private readonly state: BehaviorSubject<S.Type<any>>;
+  private readonly state: BehaviorSubject<State>;
   private readonly subscription: Subscription;
 
-  public constructor() {
+  public constructor(initialState: State) {
     this.action = new IncompletableSubject(new BehaviorSubject(undefined));
-    this.state = new BehaviorSubject(S.empty<any>());
+    this.state = new BehaviorSubject(initialState);
     this.subscription = new Subscription();
   }
 
@@ -59,19 +60,19 @@ export class Self implements Type {
     return this.action.asObservable().pipe(mapNonNilOrEmpty(v => v));
   }
 
-  public get stateStream(): Observable<S.Type<any>> {
+  public get stateStream(): Observable<State> {
     return this.state;
   }
 
-  public get lastState(): S.Type<any> {
+  public get lastState(): State {
     return this.state.value;
   }
 
-  public initialize(reducer: Reducer<any>): void {
+  public initialize(reducer: Reducer<State, any>): void {
     let disposable = this.action.asObservable()
       .pipe(
         mapNonNilOrEmpty(v => v),
-        scan((acc: S.Type<any>, action: action.Type<any>): S.Type<any> => {
+        scan((acc: State, action: action.Type<any>): State => {
           return reducer(acc, action);
         }, this.state.value),
         observeOn(queueScheduler),
@@ -92,11 +93,13 @@ export class Self implements Type {
 
 /**
  * Create and initialize a dispatch store.
- * @param {Reducer<any>} reducer A Reducer instance.
+ * @template State Generics parameter.
+ * @param {State} initialState Initial state.
+ * @param {Reducer<State, any>} reducer A Reducer instance.
  * @returns {Self} A dispatch store instance.
  */
-export function createDefault(reducer: Reducer<any>): Self {
-  let store = new Self();
+export function createDefault<State>(initialState: State, reducer: Reducer<State, any>): Self<State> {
+  let store = new Self(initialState);
   store.initialize(reducer);
   return store;
 }

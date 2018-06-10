@@ -1,6 +1,6 @@
 {
   "name": "reactive-rx-redux-js",
-  "version": "1.2.1",
+  "version": "1.2.2",
   "description": "Rx-based Redux implementation.",
   "main": "./dist/src/index.js",
   "types": "./dist/src/index.d.ts",
@@ -22,13 +22,14 @@
   },
   "homepage": "https://github.com/protoman92/reactive-rx-redux-js#readme",
   "dependencies": {
-    "rx-utilities-js": "^1.0.0",
-    "type-safe-state-js": "^1.0.0"
+    "rx-utilities-js": "^1.0.0"
   },
   "devDependencies": {
     "@types/jest": "^21.1.6",
     "coveralls": "^3.0.0",
+    "enhanced-key-value-object": "^1.0.0",
     "jest": "^21.2.1",
-    "ts-jest": "^21.2.3"
+    "ts-jest": "^21.2.3",
+    "type-safe-state-js": "^1.2.7"
   }
 }

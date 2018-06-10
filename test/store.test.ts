@@ -2,9 +2,14 @@ import { BehaviorSubject } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { Collections, Nullable, Try } from 'javascriptutilities';
 import { doOnNext } from 'rx-utilities-js';
-import { State } from 'type-safe-state-js';
+import { State as S } from 'type-safe-state-js';
 import { reduxstore } from './../src';
 import { Reducer as DispatchReducer } from './../src/store/dispatch';
+
+type State = S.Type<any>;
+type DispatchStore = reduxstore.dispatch.Self<State>;
+type RxStore = reduxstore.rx.Self<State>;
+type StoreType = reduxstore.Type<State>;
 
 let timeout = 100;
 let path1 = 'a.b.c.d';
@@ -17,7 +22,7 @@ let numbers = [1, 2, 3, 4, 5];
 let strings = ['1', '2', '3', '4', '5'];
 let booleans = [true, false, true, false];
 
-let testReduxStore = (store: reduxstore.Type, actionFn: () => void): void => {
+let testReduxStore = (store: StoreType, actionFn: () => void): void => {
   /// Setup
   let numbers = [1, 2, 3, 4, 5];
   let strings = ['1', '2', '3', '4', '5'];
@@ -25,7 +30,7 @@ let testReduxStore = (store: reduxstore.Type, actionFn: () => void): void => {
   var values1: Nullable<number>[] = [];
   var values2: Nullable<string>[] = [];
   var values3: Nullable<boolean>[] = [];
-  var states: Nullable<State.Type<any>>[] = [];
+  var states: Nullable<State>[] = [];
 
   store.stateStream.pipe(doOnNext(v => states.push(v))).subscribe();
 
@@ -58,26 +63,26 @@ describe('Rx store should be implemented correctly', () => {
   var action1: BehaviorSubject<number>;
   var action2: BehaviorSubject<reduxstore.rx.action.Type<string>>;
   var action3: BehaviorSubject<reduxstore.rx.action.Type<boolean>>;
-  var stateStore: reduxstore.rx.Self;
+  var stateStore: RxStore;
 
-  let createStore = (): reduxstore.rx.Self => {
-    let reducer1 = reduxstore.rx.createReducer(action1, (state, v) => {
+  let createStore = (): RxStore => {
+    let reducer1 = reduxstore.rx.createReducer(action1, (state: State, v) => {
       return state.mappingValue(path1, v1 => {
         return v1.map(v2 => v2 + v.value).successOrElse(Try.success(v.value));
       });
     });
 
-    let reducer2 = reduxstore.rx.createReducer(action2, (state, v) => {
+    let reducer2 = reduxstore.rx.createReducer(action2, (state: State, v) => {
       return state.mappingValue(path2, v1 => {
         return v1.map(v2 => v2 + v.value).successOrElse(Try.success(v.value));
       });
     });
 
-    let reducer3 = reduxstore.rx.createReducer(action3, (state, v) => {
+    let reducer3 = reduxstore.rx.createReducer(action3, (state: State, v) => {
       return state.updatingValue(path3, v.value);
     });
 
-    return new reduxstore.rx.Self(reducer1, reducer2, reducer3);
+    return new reduxstore.rx.Self(S.empty(), reducer1, reducer2, reducer3);
   };
 
   beforeEach(() => {
@@ -101,7 +106,7 @@ describe('Rx store should be implemented correctly', () => {
 });
 
 describe('Dispatch store should be implemented correctly', () => {
-  var stateStore: reduxstore.dispatch.Self;
+  var stateStore: DispatchStore;
 
   let actionFn1 = (v: number): reduxstore.dispatch.action.Type<number> => ({
     id: actionKey1,
@@ -121,7 +126,7 @@ describe('Dispatch store should be implemented correctly', () => {
     payload: v,
   });
 
-  let reducer: DispatchReducer<any> = (state, action) => {
+  let reducer: DispatchReducer<State, any> = (state, action) => {
     let payload = action.payload;
 
     switch (action.id) {
@@ -144,7 +149,7 @@ describe('Dispatch store should be implemented correctly', () => {
   };
 
   beforeEach(() => {
-    stateStore = reduxstore.dispatch.createDefault(reducer);
+    stateStore = reduxstore.dispatch.createDefault(S.empty(), reducer);
   });
 
   it('Dispatch action with action creators - should work', () => {

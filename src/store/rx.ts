@@ -1,7 +1,6 @@
 import { Observable, merge, queueScheduler } from 'rxjs';
 import { map, scan, observeOn, startWith } from 'rxjs/operators';
 import { Nullable, Types } from 'javascriptutilities';
-import { State as S } from 'type-safe-state-js';
 import { Type as StoreType } from './types';
 
 export namespace action {
@@ -20,15 +19,15 @@ export namespace stateinfo {
    * Represents necessary state information.
    * @template T Generics parameter.
    */
-  export interface Type<T> {
-    readonly state: S.Type<T>;
+  export interface Type<State, T> {
+    readonly state: State;
     readonly lastAction: Nullable<action.Type<T>>;
   }
 }
 
 export type ActionType<T> = action.Type<T> | T;
-export type Reducer<T> = (state: S.Type<T>, action: action.Type<T>) => S.Type<T>;
-export type RxReducer<T> = (state: S.Type<T>) => stateinfo.Type<T>;
+export type Reducer<State, T> = (state: State, action: action.Type<T>) => State;
+export type RxReducer<State, T> = (state: State) => stateinfo.Type<State, T>;
 
 /**
  * Convenience method to create an action with a default name.
@@ -49,13 +48,14 @@ function createAction<T>(action: ActionType<T>): action.Type<T> {
  * resulting Observable emits a function that takes a state and returns another
  * state. The value stream from the original Observable is responsible for
  * providing values to the reducer.
+ * @template State Generics parameter.
  * @template T Generics parameter.
  * @param {Observable<ActionType<T>>} obs An Observable instance.
- * @param {Reducer<T>} reducer A Reducer instance.
- * @returns {Observable<RxReducer<T>>} An Observable instance.
+ * @param {Reducer<State, T>} reducer A Reducer instance.
+ * @returns {Observable<RxReducer<State, T>>} An Observable instance.
  */
-export function createReducer<T>(obs: Observable<ActionType<T>>, reducer: Reducer<T>): Observable<RxReducer<T>> {
-  return obs.pipe(map(v => (state: S.Type<T>) => {
+export function createReducer<State, T>(obs: Observable<ActionType<T>>, reducer: Reducer<State, T>): Observable<RxReducer<State, T>> {
+  return obs.pipe(map(v => (state: State) => {
     let action = createAction(v);
     return { state: reducer(state, action), lastAction: createAction(action) };
   }));
@@ -71,16 +71,18 @@ export function createReducer<T>(obs: Observable<ActionType<T>>, reducer: Reduce
  *  - Pass the resulting reducer streams to this method.
  *  - When a new state value should be updated, call next(value).
  *  - The new state will be calculated and pushed onto the store stream.
+ * @template State Generics paramter.
  * @template T Generics parameter.
- * @param {...Observable<RxReducer<T>>[]} reducers An Array of Observable.
- * @returns {Observable<stateinfo.Type<T>>} An Observable instance.
+ * @param {State} initialState Initial state.
+ * @param {...Observable<RxReducer<State, T>>[]} reducers An Array of Observable.
+ * @returns {Observable<stateinfo.Type<State, T>>} An Observable instance.
  */
-export function create<T>(...reducers: Observable<RxReducer<T>>[]): Observable<stateinfo.Type<T>> {
+export function create<State, T>(initialState: State, ...reducers: Observable<RxReducer<State, T>>[]): Observable<stateinfo.Type<State, T>> {
   return merge(...reducers).pipe(
-    scan((v1: stateinfo.Type<T>, v2: RxReducer<T>) => {
+    scan((v1: stateinfo.Type<State, T>, v2: RxReducer<State, T>) => {
       return v2(v1.state);
-    }, { state: S.empty<T>(), lastAction: undefined }),
-    startWith({ state: S.empty<T>(), lastAction: undefined }),
+    }, { state: initialState, lastAction: undefined }),
+    startWith({ state: initialState, lastAction: undefined }),
     observeOn(queueScheduler),
   );
 }
@@ -88,26 +90,28 @@ export function create<T>(...reducers: Observable<RxReducer<T>>[]): Observable<s
 /**
  * Represents a rx-based store.
  * @extends {StoreType} StoreType extension.
+ * @template State Generics paramter.
  */
-export interface Type extends StoreType { }
+export interface Type<State> extends StoreType<State> { }
 
 /**
  * This store is optional. It only provides some convenience when dealing with
  * state streams.
  * @implements {Type} Type implementation.
+ * @template State Generics paramter.
  */
-export class Self implements Type {
-  private store: Observable<stateinfo.Type<any>>;
+export class Self<State> implements Type<State> {
+  private store: Observable<stateinfo.Type<State, any>>;
 
-  public constructor(...reducers: Observable<RxReducer<any>>[]) {
-    this.store = create(...reducers);
+  public constructor(initialState: State, ...reducers: Observable<RxReducer<State, any>>[]) {
+    this.store = create(initialState, ...reducers);
   }
 
-  public get stateInfoStream(): Observable<stateinfo.Type<any>> {
+  public get stateInfoStream(): Observable<stateinfo.Type<State, any>> {
     return this.store;
   }
 
-  public get stateStream(): Observable<S.Type<any>> {
+  public get stateStream(): Observable<State> {
     return this.store.pipe(map(v => v.state));
   }
 }
