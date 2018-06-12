@@ -1,4 +1,10 @@
-import { BehaviorSubject, Observable, Subscription, queueScheduler } from 'rxjs';
+import {
+  BehaviorSubject,
+  Observable,
+  Scheduler,
+  Subscription,
+} from 'rxjs';
+
 import { observeOn, scan } from 'rxjs/operators';
 import { Nullable } from 'javascriptutilities';
 import { Type as StoreType } from './types';
@@ -68,18 +74,15 @@ export class Self<State> implements Type<State> {
     return this.state.value;
   }
 
-  public initialize(reducer: Reducer<State, any>): void {
-    let disposable = this.action.asObservable()
+  public initialize(reducer: Reducer<State, any>, scheduler: Scheduler): void {
+    this.subscription.add(this.action.asObservable()
       .pipe(
         mapNonNilOrEmpty(v => v),
         scan((acc: State, action: action.Type<any>): State => {
           return reducer(acc, action);
         }, this.state.value),
-        observeOn(queueScheduler),
-    )
-      .subscribe(this.state);
-
-    this.subscription.add(disposable);
+        observeOn(scheduler))
+      .subscribe(this.state));
   }
 
   public deinitialize(): void {
@@ -96,10 +99,15 @@ export class Self<State> implements Type<State> {
  * @template State Generics parameter.
  * @param {State} initialState Initial state.
  * @param {Reducer<State, any>} reducer A Reducer instance.
+ * @param {Scheduler} scheduler A Scheduler instance.
  * @returns {Self} A dispatch store instance.
  */
-export function createDefault<State>(initialState: State, reducer: Reducer<State, any>): Self<State> {
+export function createDefault<State>(
+  initialState: State,
+  reducer: Reducer<State, any>,
+  scheduler: Scheduler,
+): Self<State> {
   let store = new Self(initialState);
-  store.initialize(reducer);
+  store.initialize(reducer, scheduler);
   return store;
 }
