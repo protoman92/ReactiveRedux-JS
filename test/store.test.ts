@@ -1,6 +1,6 @@
 import { BehaviorSubject, queueScheduler as scheduler } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { Collections, Nullable, Try } from 'javascriptutilities';
+import { Collections, Never, Try } from 'javascriptutilities';
 import { doOnNext } from 'rx-utilities-js';
 import { State as S } from 'type-safe-state-js';
 import { reduxstore as Store } from './../src';
@@ -27,10 +27,10 @@ let testReduxStore = (store: StoreType, actionFn: () => void): void => {
   let numbers = [1, 2, 3, 4, 5];
   let strings = ['1', '2', '3', '4', '5'];
   let booleans = [true, false, true, false];
-  var values1: Nullable<number>[] = [];
-  var values2: Nullable<string>[] = [];
-  var values3: Nullable<boolean>[] = [];
-  var states: Nullable<State>[] = [];
+  var values1: Never<number>[] = [];
+  var values2: Never<string>[] = [];
+  var values3: Never<boolean>[] = [];
+  var states: Never<State>[] = [];
 
   store.stateStream.pipe(doOnNext(v => states.push(v))).subscribe();
 

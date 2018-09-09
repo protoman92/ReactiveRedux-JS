@@ -1,6 +1,6 @@
 import { Observable, Scheduler, merge } from 'rxjs';
 import { map, scan, observeOn, startWith } from 'rxjs/operators';
-import { Nullable, Types } from 'javascriptutilities';
+import { Never, Types } from 'javascriptutilities';
 import { Type as StoreType } from './types';
 
 export namespace action {
@@ -21,7 +21,7 @@ export namespace stateinfo {
    */
   export interface Type<State, T> {
     readonly state: State;
-    readonly lastAction: Nullable<action.Type<T>>;
+    readonly lastAction: Never<action.Type<T>>;
   }
 }
 

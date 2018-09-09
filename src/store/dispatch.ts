@@ -6,7 +6,7 @@ import {
 } from 'rxjs';
 
 import { observeOn, scan } from 'rxjs/operators';
-import { Nullable } from 'javascriptutilities';
+import { Never } from 'javascriptutilities';
 import { Type as StoreType } from './types';
 
 import {
@@ -35,7 +35,7 @@ export type Reducer<State, T> = (state: State, action: action.Type<T>) => State;
  * @template State Generics parameter.
  */
 export interface Type<State> extends StoreType<State> {
-  readonly actionTrigger: MappableObserver.Type<Nullable<action.Type<any>>>;
+  readonly actionTrigger: MappableObserver.Type<Never<action.Type<any>>>;
   readonly actionStream: Observable<action.Type<any>>;
   readonly lastState: State;
   dispatch(action: action.Type<any>): void;
@@ -48,7 +48,7 @@ export interface Type<State> extends StoreType<State> {
  * @template State Generics parameter.
  */
 export class Self<State> implements Type<State> {
-  private readonly action: IncompletableSubject<Nullable<action.Type<any>>>;
+  private readonly action: IncompletableSubject<Never<action.Type<any>>>;
   private readonly state: BehaviorSubject<State>;
   private readonly subscription: Subscription;
 
@@ -58,7 +58,7 @@ export class Self<State> implements Type<State> {
     this.subscription = new Subscription();
   }
 
-  public get actionTrigger(): MappableObserver.Type<Nullable<action.Type<any>>> {
+  public get actionTrigger(): MappableObserver.Type<Never<action.Type<any>>> {
     return this.action;
   }
 
