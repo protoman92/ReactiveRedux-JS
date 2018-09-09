@@ -1,13 +1,8 @@
-import {
-  BehaviorSubject,
-  Observable,
-  Scheduler,
-  Subscription,
-} from 'rxjs';
+import {BehaviorSubject, Observable, Scheduler, Subscription} from 'rxjs';
 
-import { observeOn, scan } from 'rxjs/operators';
-import { Never } from 'javascriptutilities';
-import { Type as StoreType } from './types';
+import {observeOn, scan} from 'rxjs/operators';
+import {Never} from 'javascriptutilities';
+import {Type as StoreType} from './types';
 
 import {
   IncompletableSubject,
@@ -75,14 +70,18 @@ export class Self<State> implements Type<State> {
   }
 
   public initialize(reducer: Reducer<State, any>, scheduler: Scheduler): void {
-    this.subscription.add(this.action.asObservable()
-      .pipe(
-        mapNonNilOrEmpty(v => v),
-        scan((acc: State, action: action.Type<any>): State => {
-          return reducer(acc, action);
-        }, this.state.value),
-        observeOn(scheduler))
-      .subscribe(this.state));
+    this.subscription.add(
+      this.action
+        .asObservable()
+        .pipe(
+          mapNonNilOrEmpty(v => v),
+          scan((acc: State, action: action.Type<any>): State => {
+            return reducer(acc, action);
+          }, this.state.value),
+          observeOn(scheduler)
+        )
+        .subscribe(this.state)
+    );
   }
 
   public deinitialize(): void {
@@ -105,7 +104,7 @@ export class Self<State> implements Type<State> {
 export function createDefault<State>(
   initialState: State,
   reducer: Reducer<State, any>,
-  scheduler: Scheduler,
+  scheduler: Scheduler
 ): Self<State> {
   let store = new Self(initialState);
   store.initialize(reducer, scheduler);

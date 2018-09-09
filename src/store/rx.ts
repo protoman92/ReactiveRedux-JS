@@ -1,7 +1,7 @@
-import { Observable, Scheduler, merge } from 'rxjs';
-import { map, scan, observeOn, startWith } from 'rxjs/operators';
-import { Never, Types } from 'javascriptutilities';
-import { Type as StoreType } from './types';
+import {Observable, Scheduler, merge} from 'rxjs';
+import {map, scan, observeOn, startWith} from 'rxjs/operators';
+import {Never, Types} from 'javascriptutilities';
+import {Type as StoreType} from './types';
 
 export namespace action {
   /**
@@ -39,7 +39,7 @@ function createAction<T>(action: ActionType<T>): action.Type<T> {
   if (Types.isInstance<action.Type<T>>(action, 'name', 'value')) {
     return action;
   } else {
-    return { name: 'DummyAction', value: action };
+    return {name: 'DummyAction', value: action};
   }
 }
 
@@ -54,17 +54,22 @@ function createAction<T>(action: ActionType<T>): action.Type<T> {
  * @param {Reducer<State, T>} reducer A Reducer instance.
  * @returns {Observable<RxReducer<State, T>>} An Observable instance.
  */
-export function createReducer<State, T>(obs: Observable<ActionType<T>>, reducer: Reducer<State, T>): Observable<RxReducer<State, T>> {
-  return obs.pipe(map(v => (state: State) => {
-    let action = createAction(v);
-    return { state: reducer(state, action), lastAction: createAction(action) };
-  }));
+export function createReducer<State, T>(
+  obs: Observable<ActionType<T>>,
+  reducer: Reducer<State, T>
+): Observable<RxReducer<State, T>> {
+  return obs.pipe(
+    map(v => (state: State) => {
+      let action = createAction(v);
+      return {state: reducer(state, action), lastAction: createAction(action)};
+    })
+  );
 }
 
 /**
- * Create a Redux store that accepts an Array of reducer streams, then scan them 
+ * Create a Redux store that accepts an Array of reducer streams, then scan them
  * to derive the latest state.
- * 
+ *
  * The setup should be as follows:
  *  - Define BehaviorSubject instances that accept state values.
  *  - Create reducer streams using createReducer.
@@ -84,11 +89,14 @@ export function create<State, T>(
   ...reducers: Observable<RxReducer<State, T>>[]
 ): Observable<stateinfo.Type<State, T>> {
   return merge(...reducers).pipe(
-    scan((v1: stateinfo.Type<State, T>, v2: RxReducer<State, T>) => {
-      return v2(v1.state);
-    }, { state: initialState, lastAction: undefined }),
-    startWith({ state: initialState, lastAction: undefined }),
-    observeOn(scheduler),
+    scan(
+      (v1: stateinfo.Type<State, T>, v2: RxReducer<State, T>) => {
+        return v2(v1.state);
+      },
+      {state: initialState, lastAction: undefined}
+    ),
+    startWith({state: initialState, lastAction: undefined}),
+    observeOn(scheduler)
   );
 }
 
@@ -97,7 +105,7 @@ export function create<State, T>(
  * @extends {StoreType} StoreType extension.
  * @template State Generics paramter.
  */
-export interface Type<State> extends StoreType<State> { }
+export interface Type<State> extends StoreType<State> {}
 
 /**
  * This store is optional. It only provides some convenience when dealing with

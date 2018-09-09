@@ -1,10 +1,10 @@
-import { BehaviorSubject, queueScheduler as scheduler } from 'rxjs';
-import { map } from 'rxjs/operators';
-import { Collections, Never, Try } from 'javascriptutilities';
-import { doOnNext } from 'rx-utilities-js';
-import { State as S } from 'type-safe-state-js';
-import { reduxstore as Store } from './../src';
-import { Reducer as DispatchReducer } from './../src/store/dispatch';
+import {BehaviorSubject, queueScheduler as scheduler} from 'rxjs';
+import {map} from 'rxjs/operators';
+import {Collections, Never, Try} from 'javascriptutilities';
+import {doOnNext} from 'rx-utilities-js';
+import {State as S} from 'type-safe-state-js';
+import {reduxstore as Store} from './../src';
+import {Reducer as DispatchReducer} from './../src/store/dispatch';
 
 type State = S.Type<any>;
 type DispatchStore = Store.dispatch.Self<State>;
@@ -34,28 +34,40 @@ let testReduxStore = (store: StoreType, actionFn: () => void): void => {
 
   store.stateStream.pipe(doOnNext(v => states.push(v))).subscribe();
 
-  store.stateStream.pipe(
-    map(v => v.numberAtNode(path1)),
-    doOnNext(v => values1.push(v.value))
-  ).subscribe();
+  store.stateStream
+    .pipe(
+      map(v => v.numberAtNode(path1)),
+      doOnNext(v => values1.push(v.value))
+    )
+    .subscribe();
 
-  store.stateStream.pipe(
-    map(v => v.stringAtNode(path2)),
-    doOnNext(v => values2.push(v.value)),
-  ).subscribe();
+  store.stateStream
+    .pipe(
+      map(v => v.stringAtNode(path2)),
+      doOnNext(v => values2.push(v.value))
+    )
+    .subscribe();
 
-  store.stateStream.pipe(
-    map(v => v.booleanAtNode(path3)),
-    doOnNext(v => values3.push(v.value)),
-  ).subscribe();
+  store.stateStream
+    .pipe(
+      map(v => v.booleanAtNode(path3)),
+      doOnNext(v => values3.push(v.value))
+    )
+    .subscribe();
 
   /// When
   actionFn();
 
   /// Then
-  expect(Collections.last(values1).value).toEqual(numbers.reduce((acc, v) => acc + v));
-  expect(Collections.last(values2).value).toEqual(strings.reduce((v1, v2) => v1 + v2));
-  expect(Collections.last(values3).value).toEqual(Collections.last(booleans).value);
+  expect(Collections.last(values1).value).toEqual(
+    numbers.reduce((acc, v) => acc + v)
+  );
+  expect(Collections.last(values2).value).toEqual(
+    strings.reduce((v1, v2) => v1 + v2)
+  );
+  expect(Collections.last(values3).value).toEqual(
+    Collections.last(booleans).value
+  );
   expect(states.every(v => v !== undefined && v !== null)).toBeTruthy();
 };
 
@@ -82,14 +94,20 @@ describe('Rx store should be implemented correctly', () => {
       return state.updatingValue(path3, v.value);
     });
 
-    return new Store.rx.Self(S.empty(), scheduler, reducer1, reducer2, reducer3);
+    return new Store.rx.Self(
+      S.empty(),
+      scheduler,
+      reducer1,
+      reducer2,
+      reducer3
+    );
   };
 
   beforeEach(() => {
     /// Here we mix both Action.Type and normal values.
     action1 = new BehaviorSubject(0);
-    action2 = new BehaviorSubject({ name: actionKey2, value: '' });
-    action3 = new BehaviorSubject({ name: actionKey3, value: false });
+    action2 = new BehaviorSubject({name: actionKey2, value: ''});
+    action3 = new BehaviorSubject({name: actionKey3, value: false});
     stateStore = createStore();
   });
 
@@ -97,9 +115,9 @@ describe('Rx store should be implemented correctly', () => {
     testReduxStore(stateStore, () => {
       numbers.forEach(v => action1.next(v));
       setTimeout(undefined, timeout);
-      strings.forEach(v => action2.next({ name: actionKey2, value: v }));
+      strings.forEach(v => action2.next({name: actionKey2, value: v}));
       setTimeout(undefined, timeout);
-      booleans.forEach(v => action3.next({ name: actionKey3, value: v }));
+      booleans.forEach(v => action3.next({name: actionKey3, value: v}));
       setTimeout(undefined, timeout);
     });
   });

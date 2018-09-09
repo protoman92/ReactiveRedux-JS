@@ -7,7 +7,7 @@
 
 Rx-based Redux implementation, inspired by https://github.com/Holmusk/HMReactiveRedux-iOS.git.
 
-### Rx store ###
+### Rx store
 
 The first implementation of the store is the RxStore, which can be accessed with:
 
@@ -55,6 +55,6 @@ action3.next(3);
 
 Every time the **Subject** pushes a value, it will be pushed onto the state stream and used to compute the next state.
 
-### Dispatch store ###
+### Dispatch store
 
 The second implementation is the same as normal Redux store, whereby the store is responsible for dispatching actions.
