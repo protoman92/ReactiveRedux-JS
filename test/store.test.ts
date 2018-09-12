@@ -1,14 +1,14 @@
-import {BehaviorSubject, queueScheduler as scheduler} from 'rxjs';
-import {map} from 'rxjs/operators';
 import {Collections, Never, Try} from 'javascriptutilities';
 import {doOnNext} from 'rx-utilities-js';
+import {BehaviorSubject, queueScheduler as scheduler} from 'rxjs';
+import {map} from 'rxjs/operators';
 import {State as S} from 'type-safe-state-js';
-import {reduxstore as Store} from './../src';
+import {ReduxStore as Store} from './../src';
 import {Reducer as DispatchReducer} from './../src/store/dispatch';
 
 type State = S.Type<any>;
-type DispatchStore = Store.dispatch.Self<State>;
-type RxStore = Store.rx.Self<State>;
+type DispatchStore = Store.Dispatch.Impl<State>;
+type RxStore = Store.Rx.Impl<State>;
 type StoreType = Store.Type<State>;
 
 let timeout = 100;
@@ -73,28 +73,28 @@ let testReduxStore = (store: StoreType, actionFn: () => void): void => {
 
 describe('Rx store should be implemented correctly', () => {
   var action1: BehaviorSubject<number>;
-  var action2: BehaviorSubject<Store.rx.action.Type<string>>;
-  var action3: BehaviorSubject<Store.rx.action.Type<boolean>>;
+  var action2: BehaviorSubject<Store.Rx.Action.Type<string>>;
+  var action3: BehaviorSubject<Store.Rx.Action.Type<boolean>>;
   var stateStore: RxStore;
 
   let createStore = (): RxStore => {
-    let reducer1 = Store.rx.createReducer(action1, (state: State, v) => {
+    let reducer1 = Store.Rx.createReducer(action1, (state: State, v) => {
       return state.mappingValue(path1, v1 => {
         return v1.map(v2 => v2 + v.value).successOrElse(Try.success(v.value));
       });
     });
 
-    let reducer2 = Store.rx.createReducer(action2, (state: State, v) => {
+    let reducer2 = Store.Rx.createReducer(action2, (state: State, v) => {
       return state.mappingValue(path2, v1 => {
         return v1.map(v2 => v2 + v.value).successOrElse(Try.success(v.value));
       });
     });
 
-    let reducer3 = Store.rx.createReducer(action3, (state: State, v) => {
+    let reducer3 = Store.Rx.createReducer(action3, (state: State, v) => {
       return state.updatingValue(path3, v.value);
     });
 
-    return new Store.rx.Self(
+    return new Store.Rx.Impl(
       S.empty(),
       scheduler,
       reducer1,
@@ -126,19 +126,19 @@ describe('Rx store should be implemented correctly', () => {
 describe('Dispatch store should be implemented correctly', () => {
   var stateStore: DispatchStore;
 
-  let actionFn1 = (v: number): Store.dispatch.action.Type<number> => ({
+  let actionFn1 = (v: number): Store.Dispatch.Action.Type<number> => ({
     id: actionKey1,
     fullValuePath: path1,
     payload: v,
   });
 
-  let actionFn2 = (v: string): Store.dispatch.action.Type<string> => ({
+  let actionFn2 = (v: string): Store.Dispatch.Action.Type<string> => ({
     id: actionKey2,
     fullValuePath: path2,
     payload: v,
   });
 
-  let actionFn3 = (v: boolean): Store.dispatch.action.Type<boolean> => ({
+  let actionFn3 = (v: boolean): Store.Dispatch.Action.Type<boolean> => ({
     id: actionKey3,
     fullValuePath: path3,
     payload: v,
@@ -167,7 +167,7 @@ describe('Dispatch store should be implemented correctly', () => {
   };
 
   beforeEach(() => {
-    stateStore = Store.dispatch.createDefault(S.empty(), reducer, scheduler);
+    stateStore = Store.Dispatch.createDefault(S.empty(), reducer, scheduler);
   });
 
   it('Dispatch action with action creators - should work', () => {

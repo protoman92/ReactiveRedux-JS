@@ -3,7 +3,7 @@ import {map, scan, observeOn, startWith} from 'rxjs/operators';
 import {Never, Types} from 'javascriptutilities';
 import {Type as StoreType} from './types';
 
-export namespace action {
+export namespace Action {
   /**
    * Represents a dispatchable action.
    * @template T Generics parameter.
@@ -14,29 +14,29 @@ export namespace action {
   }
 }
 
-export namespace stateinfo {
+export namespace StateInfo {
   /**
    * Represents necessary state information.
    * @template T Generics parameter.
    */
   export interface Type<State, T> {
     readonly state: State;
-    readonly lastAction: Never<action.Type<T>>;
+    readonly lastAction: Never<Action.Type<T>>;
   }
 }
 
-export type ActionType<T> = action.Type<T> | T;
-export type Reducer<State, T> = (state: State, action: action.Type<T>) => State;
-export type RxReducer<State, T> = (state: State) => stateinfo.Type<State, T>;
+export type ActionType<T> = Action.Type<T> | T;
+export type Reducer<State, T> = (state: State, action: Action.Type<T>) => State;
+export type RxReducer<State, T> = (state: State) => StateInfo.Type<State, T>;
 
 /**
  * Convenience method to create an action with a default name.
  * @template T Generics parameter.
  * @param {ActionType<T>} action An ActionType instance.
- * @returns {action.Type<T>} An Action type instance.
+ * @returns {Action.Type<T>} An Action type instance.
  */
-function createAction<T>(action: ActionType<T>): action.Type<T> {
-  if (Types.isInstance<action.Type<T>>(action, 'name', 'value')) {
+function createAction<T>(action: ActionType<T>): Action.Type<T> {
+  if (Types.isInstance<Action.Type<T>>(action, 'name', 'value')) {
     return action;
   } else {
     return {name: 'DummyAction', value: action};
@@ -81,16 +81,16 @@ export function createReducer<State, T>(
  * @param {State} initialState Initial state.
  * @param {Scheduler} scheduler A Scheduler instance.
  * @param {...Observable<RxReducer<State, T>>[]} reducers An Array of Observable.
- * @returns {Observable<stateinfo.Type<State, T>>} An Observable instance.
+ * @returns {Observable<StateInfo.Type<State, T>>} An Observable instance.
  */
 export function create<State, T>(
   initialState: State,
   scheduler: Scheduler,
   ...reducers: Observable<RxReducer<State, T>>[]
-): Observable<stateinfo.Type<State, T>> {
+): Observable<StateInfo.Type<State, T>> {
   return merge(...reducers).pipe(
     scan(
-      (v1: stateinfo.Type<State, T>, v2: RxReducer<State, T>) => {
+      (v1: StateInfo.Type<State, T>, v2: RxReducer<State, T>) => {
         return v2(v1.state);
       },
       {state: initialState, lastAction: undefined}
@@ -113,8 +113,8 @@ export interface Type<State> extends StoreType<State> {}
  * @implements {Type} Type implementation.
  * @template State Generics paramter.
  */
-export class Self<State> implements Type<State> {
-  private store: Observable<stateinfo.Type<State, any>>;
+export class Impl<State> implements Type<State> {
+  private store: Observable<StateInfo.Type<State, any>>;
 
   public constructor(
     initialState: State,
@@ -124,7 +124,7 @@ export class Self<State> implements Type<State> {
     this.store = create(initialState, scheduler, ...reducers);
   }
 
-  public get stateInfoStream(): Observable<stateinfo.Type<State, any>> {
+  public get stateInfoStream(): Observable<StateInfo.Type<State, any>> {
     return this.store;
   }
 

@@ -1,16 +1,14 @@
-import {BehaviorSubject, Observable, Scheduler, Subscription} from 'rxjs';
-
-import {observeOn, scan} from 'rxjs/operators';
 import {Never} from 'javascriptutilities';
-import {Type as StoreType} from './types';
-
 import {
   IncompletableSubject,
-  MappableObserver,
   mapNonNilOrEmpty,
+  MappableObserver,
 } from 'rx-utilities-js';
+import {BehaviorSubject, Observable, Scheduler, Subscription} from 'rxjs';
+import {observeOn, scan} from 'rxjs/operators';
+import {Type as StoreType} from './types';
 
-export namespace action {
+export namespace Action {
   /**
    * Represents an action to be dispatched to the global state.
    * @template T Generics parameter.
@@ -22,7 +20,7 @@ export namespace action {
   }
 }
 
-export type Reducer<State, T> = (state: State, action: action.Type<T>) => State;
+export type Reducer<State, T> = (state: State, action: Action.Type<T>) => State;
 
 /**
  * Represents a dispatch store type.
@@ -30,10 +28,10 @@ export type Reducer<State, T> = (state: State, action: action.Type<T>) => State;
  * @template State Generics parameter.
  */
 export interface Type<State> extends StoreType<State> {
-  readonly actionTrigger: MappableObserver.Type<Never<action.Type<any>>>;
-  readonly actionStream: Observable<action.Type<any>>;
+  readonly actionTrigger: MappableObserver.Type<Never<Action.Type<any>>>;
+  readonly actionStream: Observable<Action.Type<any>>;
   readonly lastState: State;
-  dispatch(action: action.Type<any>): void;
+  dispatch(action: Action.Type<any>): void;
 }
 
 /**
@@ -42,8 +40,8 @@ export interface Type<State> extends StoreType<State> {
  * @implements {Type} Type implementation.
  * @template State Generics parameter.
  */
-export class Self<State> implements Type<State> {
-  private readonly action: IncompletableSubject<Never<action.Type<any>>>;
+export class Impl<State> implements Type<State> {
+  private readonly action: IncompletableSubject<Never<Action.Type<any>>>;
   private readonly state: BehaviorSubject<State>;
   private readonly subscription: Subscription;
 
@@ -53,11 +51,11 @@ export class Self<State> implements Type<State> {
     this.subscription = new Subscription();
   }
 
-  public get actionTrigger(): MappableObserver.Type<Never<action.Type<any>>> {
+  public get actionTrigger(): MappableObserver.Type<Never<Action.Type<any>>> {
     return this.action;
   }
 
-  public get actionStream(): Observable<action.Type<any>> {
+  public get actionStream(): Observable<Action.Type<any>> {
     return this.action.asObservable().pipe(mapNonNilOrEmpty(v => v));
   }
 
@@ -75,7 +73,7 @@ export class Self<State> implements Type<State> {
         .asObservable()
         .pipe(
           mapNonNilOrEmpty(v => v),
-          scan((acc: State, action: action.Type<any>): State => {
+          scan((acc: State, action: Action.Type<any>): State => {
             return reducer(acc, action);
           }, this.state.value),
           observeOn(scheduler)
@@ -88,7 +86,7 @@ export class Self<State> implements Type<State> {
     this.subscription.unsubscribe();
   }
 
-  public dispatch(action: action.Type<any>): void {
+  public dispatch(action: Action.Type<any>): void {
     this.actionTrigger.next(action);
   }
 }
@@ -99,14 +97,14 @@ export class Self<State> implements Type<State> {
  * @param {State} initialState Initial state.
  * @param {Reducer<State, any>} reducer A Reducer instance.
  * @param {Scheduler} scheduler A Scheduler instance.
- * @returns {Self} A dispatch store instance.
+ * @returns {Impl} A dispatch store instance.
  */
 export function createDefault<State>(
   initialState: State,
   reducer: Reducer<State, any>,
   scheduler: Scheduler
-): Self<State> {
-  let store = new Self(initialState);
+): Impl<State> {
+  let store = new Impl(initialState);
   store.initialize(reducer, scheduler);
   return store;
 }

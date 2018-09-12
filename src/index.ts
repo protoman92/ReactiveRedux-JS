@@ -1,3 +1,3 @@
-import * as reduxstore from './store';
+import * as ReduxStore from './store';
 import {DispatchReducer, RxReducer} from './store';
-export {DispatchReducer, RxReducer, reduxstore};
+export {DispatchReducer, RxReducer, ReduxStore};
